@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Web Coding Refresher</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: friendly coach, short sentences, a Grade 7 builder getting ready for a hackathon
+   IDEA: a hacker's workbench — every lesson is a live bench: brief on the left, code + screen on the right
+   PICTURE: the editor and its live preview are the picture; the first exercise sits in the first screen
+   COLOUR and TYPE: deep sea ground, sky for code, pink for the action buttons; Hanken Grotesk + JetBrains Mono
+   LAYOUT: top strip (title + progress), track tabs, stacked exercise benches, final project band */
+:root{color-scheme:light dark;--bg:light-dark(#f4f8fb,#0a2540);--panel:light-dark(#ffffff,#0f2f50);--ink:light-dark(#0a2540,#ffffff);--soft:light-dark(#4a6178,#a9c4dc);--sky:light-dark(#0b6fa8,#8fd3ff);--pink:#ff5c8a;--line:light-dark(#d4e1ec,#1d4468);--code:#0a2540;--codeink:#dff2ff;--ok:light-dark(#0a7a45,#6fe3a5)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Hanken Grotesk",system-ui,sans-serif;overflow-x:clip}
+.band{padding:clamp(28px,4vw,56px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+header.band{background:#0a2540;color:#fff;padding-bottom:28px}
+h1{font-weight:300;font-size:clamp(34px,5vw,52px);line-height:1.05;margin:0 0 10px;text-wrap:balance}
+h1 b{font-weight:700}
+.lede{color:#a9c4dc;max-width:62ch;margin:0 0 22px;font-size:17px}
+.prog{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.bar{flex:1 1 220px;height:12px;background:#1d4468;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#8fd3ff,#ff5c8a);transition:width .4s}
+.prog span{color:#8fd3ff;font-weight:600;white-space:nowrap}
+nav{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+nav .scroll{display:flex;gap:6px;max-width:1240px;margin:0 auto;padding:10px max(5vw,16px)}
+nav a{flex:none;text-decoration:none;color:var(--ink);padding:10px 16px;border-radius:99px;border:1px solid var(--line);font-weight:600;min-height:44px;display:flex;align-items:center}
+nav a:hover,nav a:focus-visible{border-color:var(--sky);color:var(--sky);outline:none}
+.track{margin-top:8px}
+.track h2{font-size:32px;line-height:1.05;margin:0 0 6px}
+.track>p{color:var(--soft);margin:0 0 22px;max-width:68ch}
+.bench{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:22px;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:24px}
+.brief h3{margin:0 0 8px;font-size:21px;line-height:1.2;display:flex;gap:10px;align-items:baseline}
+.brief h3 .done{font-size:13px;color:var(--ok);font-weight:700;white-space:nowrap}
+.brief ol,.brief ul{padding-left:20px;margin:8px 0}
+.brief li{margin:4px 0}
+.learn{background:light-dark(#eaf4fb,#0a2540);border-radius:12px;padding:12px 14px;margin:12px 0;font-size:15px}
+.learn b{color:var(--sky)}
+code{font-family:"JetBrains Mono",monospace;font-size:.88em;background:light-dark(#e3eef7,#163a5e);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+details{margin-top:10px}
+summary{cursor:pointer;color:var(--sky);font-weight:600;min-height:32px}
+details pre{background:var(--code);color:var(--codeink);border-radius:10px;padding:12px;font:13px/1.5 "JetBrains Mono",monospace;overflow-x:auto;white-space:pre}
+.work{display:grid;grid-template-rows:auto auto auto;gap:10px}
+.edhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.edhead span{font:600 13px "JetBrains Mono",monospace;color:var(--soft)}
+textarea{width:100%;min-height:230px;resize:vertical;background:var(--code);color:var(--codeink);border:1px solid #1d4468;border-radius:12px;padding:14px;font:14px/1.55 "JetBrains Mono",monospace;tab-size:2}
+textarea:focus-visible{outline:2px solid #8fd3ff;outline-offset:2px}
+.btns{display:flex;gap:8px;flex-wrap:wrap}
+button{font:600 15px "Hanken Grotesk",sans-serif;min-height:44px;padding:0 18px;border-radius:99px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+button.run{background:var(--pink);border-color:var(--pink);color:#fff}
+button:hover{filter:brightness(1.08)}button:focus-visible{outline:2px solid var(--sky);outline-offset:2px}
+.screen{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.screen .chrome{background:#e7eef4;padding:6px 10px;display:flex;gap:6px}.screen .chrome i{width:10px;height:10px;border-radius:50%;background:#c3d2de}
+iframe{display:block;width:100%;height:220px;border:0;background:#fff}
+.msg{font-weight:600;min-height:24px;font-size:15px}
+.msg.good{color:var(--ok)}.msg.bad{color:var(--pink)}
+.final{background:#0a2540;color:#fff}
+.final .track>p{color:#a9c4dc}.final .bench{background:#0f2f50;border-color:#1d4468;color:#fff}
+.final .learn{background:#0a2540}.final code{background:#163a5e}
+.tips{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px;margin-top:8px}
+.tips div{border-top:3px solid var(--pink);padding-top:10px}
+.tips h4{margin:0 0 4px;font-size:17px}.tips p{margin:0;color:#a9c4dc;font-size:15px}
+footer{color:var(--soft);font-size:14px;text-align:center;padding:24px 16px}
+@media(max-width:860px){.bench{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<header class="band"><div class="wrap">
+  <h1>Web coding refresher for <b>Hack the Ridge</b></h1>
+  <p class="lede">Nine short exercises. Edit the code, press Run, and see the result on the little screen. Press Check to see if you got it. Stuck? Open the hint, then the answer.</p>
+  <div class="prog"><div class="bar"><i id="barfill"></i></div><span id="count">0 of 8 checked</span></div>
+</div></header>
+
+<nav><div class="scroll">
+  <a href="#html">1. HTML</a><a href="#css">2. CSS</a><a href="#js">3. JavaScript</a><a href="#project">4. Mini project</a>
+</div></nav>
+
+<main>
+  <section class="band" id="html"><div class="wrap track">
+    <h2>HTML: the bones</h2>
+    <p>HTML says <em>what</em> is on the page: headings, paragraphs, buttons, lists, inputs. Tags come in pairs like <code>&lt;p&gt;…&lt;/p&gt;</code>.</p>
+    <div data-ex="h1"></div><div data-ex="h2"></div>
+  </div></section>
+
+  <section class="band" id="css"><div class="wrap track">
+    <h2>CSS: the looks</h2>
+    <p>CSS says <em>how it looks</em>. You pick elements with a selector (<code>.card</code> means class="card") and set properties inside <code>{ }</code>.</p>
+    <div data-ex="c1"></div><div data-ex="c2"></div>
+  </div></section>
+
+  <section class="band" id="js"><div class="wrap track">
+    <h2>JavaScript: the brains</h2>
+    <p>JavaScript makes the page <em>do</em> things: react to clicks, read what you typed, change text, and talk to APIs. Not the same as Java!</p>
+    <div data-ex="j1"></div><div data-ex="j2"></div><div data-ex="j3"></div><div data-ex="j4"></div>
+  </div></section>
+
+  <section class="band final" id="project"><div class="wrap track">
+    <h2>Mini project: a quiz app</h2>
+    <p>Put it all together. This is hackathon-sized: you should be able to finish and improve it in one sitting. There is no Check button, because you decide when it's good.</p>
+    <div data-ex="p1"></div>
+    <div class="tips">
+      <div><h4>Start small</h4><p>Get one question working end to end before adding more. A working small app beats a broken big one.</p></div>
+      <div><h4>Test often</h4><p>Press Run after every few lines. If something breaks, you know it was the last thing you changed.</p></div>
+      <div><h4>Can you explain it?</h4><p>Judges ask how it works. If you use AI help, make sure you understand every line.</p></div>
+    </div>
+  </div></section>
+</main>
+<footer>Your progress is saved in this browser only.</footer>
+
+<script>
+{
+const EX = {
+h1:{title:"Build a project card",learn:"<b>Key tags:</b> <code>&lt;h1&gt;</code> big heading, <code>&lt;p&gt;</code> paragraph, <code>&lt;ul&gt;</code> + <code>&lt;li&gt;</code> bullet list, <code>&lt;button&gt;</code> a button.",
+task:["Add an <code>&lt;h1&gt;</code> with your project's name","Add a <code>&lt;p&gt;</code> describing it in one sentence","Add a <code>&lt;ul&gt;</code> with at least 3 <code>&lt;li&gt;</code> features","Add a <code>&lt;button&gt;</code> that says Try it"],
+hint:"Every list item goes inside the ul: <ul><li>one</li><li>two</li></ul>",
+start:`<!-- Write your HTML below -->
+<h1>My Project</h1>
+`,
+sol:`<h1>StudyBuddy</h1>
+<p>An app that turns your notes into quiz questions.</p>
+<ul>
+  <li>Paste your notes</li>
+  <li>Get 5 questions</li>
+  <li>Track your score</li>
+</ul>
+<button>Try it</button>`,
+check:d=>{const p=[];if(!d.querySelector('h1'))p.push('an h1');if(!d.querySelector('p'))p.push('a p');const u=d.querySelector('ul');if(!u||u.querySelectorAll('li').length<3)p.push('a ul with 3+ li');if(!d.querySelector('button'))p.push('a button');return p.length?[false,'Still missing: '+p.join(', ')]:[true,'Nice: all four pieces are there.']}},
+
+h2:{title:"Make a sign-up form",learn:"<b>Forms:</b> <code>&lt;label&gt;</code> names a box, <code>&lt;input&gt;</code> is the box. Give the input an <code>id</code> and the label <code>for=\"same-id\"</code> so they're linked.",
+task:["Add a label + text input for Name (id <code>name</code>)","Add a label + input with <code>type=\"email\"</code>","Add a <code>&lt;select&gt;</code> with 3 grade options","Add a Sign up button"],
+hint:"<label for=\"name\">Name</label> <input id=\"name\" type=\"text\">. A select looks like <select><option>Grade 7</option>…</select>",
+start:`<h2>Join the team</h2>
+<label for="name">Name</label>
+<input id="name" type="text">
+`,
+sol:`<h2>Join the team</h2>
+<label for="name">Name</label>
+<input id="name" type="text"><br>
+<label for="email">Email</label>
+<input id="email" type="email"><br>
+<label for="grade">Grade</label>
+<select id="grade">
+  <option>Grade 7</option>
+  <option>Grade 8</option>
+  <option>Grade 9</option>
+</select><br>
+<button>Sign up</button>`,
+check:d=>{const p=[];if(!d.querySelector('#name'))p.push('input with id name');if(!d.querySelector('input[type=email]'))p.push('an email input');const s=d.querySelector('select');if(!s||s.options.length<3)p.push('a select with 3 options');if(!d.querySelector('button'))p.push('a button');if(d.querySelectorAll('label').length<2)p.push('labels for your inputs');return p.length?[false,'Still missing: '+p.join(', ')]:[true,'Great form. That is exactly how real sign-up pages start.']}},
+
+c1:{title:"Style the card",learn:"<b>Box model:</b> <code>padding</code> is space inside, <code>margin</code> space outside, <code>border-radius</code> rounds corners. Colours can be names (<code>tomato</code>) or hex (<code>#ff5c8a</code>).",
+task:["Give <code>.card</code> a background colour","Add padding (try <code>20px</code>)","Round the corners with <code>border-radius</code>","Make the button's text white"],
+hint:"Inside .card { } write lines like background: lavender; padding: 20px; border-radius: 12px;",
+start:`<style>
+.card {
+  /* your styles here */
+}
+.card button {
+}
+</style>
+<div class="card">
+  <h2>StudyBuddy</h2>
+  <p>Turn notes into quizzes.</p>
+  <button>Try it</button>
+</div>`,
+sol:`<style>
+.card {
+  background: #fff3f6;
+  padding: 20px;
+  border-radius: 14px;
+  max-width: 320px;
+  font-family: sans-serif;
+  box-shadow: 0 4px 14px rgba(0,0,0,.12);
+}
+.card button {
+  background: #ff5c8a;
+  color: white;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 99px;
+}
+</style>
+<div class="card">
+  <h2>StudyBuddy</h2>
+  <p>Turn notes into quizzes.</p>
+  <button>Try it</button>
+</div>`,
+check:(d,w)=>{const c=d.querySelector('.card'),b=d.querySelector('.card button');if(!c||!b)return[false,'Keep the .card div and its button.'];const s=w.getComputedStyle(c),bs=w.getComputedStyle(b);const p=[];const bg=s.backgroundColor;if(bg==='rgba(0, 0, 0, 0)'||bg==='transparent')p.push('a background');if(parseFloat(s.paddingTop)<=0)p.push('padding');if(parseFloat(s.borderTopLeftRadius)<=0)p.push('border-radius');if(bs.color!=='rgb(255, 255, 255)')p.push('white button text');return p.length?[false,'Still missing: '+p.join(', ')]:[true,'Looking sharp.']}},
+
+c2:{title:"Line things up with flexbox",learn:"<b>Flexbox</b> puts things in a row. On the parent: <code>display: flex</code>, then <code>gap</code> for space between, <code>justify-content</code> to spread them out, <code>align-items</code> to line them up vertically.",
+task:["Make <code>.row</code> a flex container","Add a gap between the boxes","Bonus: centre them with <code>justify-content: center</code>"],
+hint:".row { display: flex; gap: 12px; }",
+start:`<style>
+.row {
+}
+.box {
+  background: #8fd3ff;
+  padding: 20px;
+  border-radius: 10px;
+  font-family: sans-serif;
+}
+</style>
+<div class="row">
+  <div class="box">Ideas</div>
+  <div class="box">Build</div>
+  <div class="box">Demo</div>
+</div>`,
+sol:`<style>
+.row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.box {
+  background: #8fd3ff;
+  padding: 20px;
+  border-radius: 10px;
+  font-family: sans-serif;
+}
+</style>
+<div class="row">
+  <div class="box">Ideas</div>
+  <div class="box">Build</div>
+  <div class="box">Demo</div>
+</div>`,
+check:(d,w)=>{const r=d.querySelector('.row');if(!r)return[false,'Keep the .row div.'];const s=w.getComputedStyle(r);if(s.display!=='flex')return[false,'.row needs display: flex'];if(!(parseFloat(s.columnGap)>0))return[false,'Now add a gap.'];return[true,'Three in a row. Flexbox is how most layouts are built.']}},
+
+j1:{title:"Click counter",learn:"<b>Three steps you'll use all day:</b> 1) grab an element with <code>document.querySelector('#id')</code>, 2) listen with <code>.addEventListener('click', …)</code>, 3) change it with <code>.textContent = …</code>",
+task:["When the button is clicked, add 1 to <code>count</code>","Show the new count in the <code>#out</code> paragraph"],
+hint:"Inside the click function: count = count + 1; then out.textContent = count;",
+start:`<button id="btn">Click me</button>
+<p id="out">0</p>
+<script>
+let count = 0;
+const btn = document.querySelector('#btn');
+const out = document.querySelector('#out');
+
+btn.addEventListener('click', function () {
+  // your code here
+});
+<\/script>`,
+sol:`<button id="btn">Click me</button>
+<p id="out">0</p>
+<script>
+let count = 0;
+const btn = document.querySelector('#btn');
+const out = document.querySelector('#out');
+
+btn.addEventListener('click', function () {
+  count = count + 1;
+  out.textContent = count;
+});
+<\/script>`,
+check:d=>{const b=d.querySelector('#btn'),o=d.querySelector('#out');if(!b||!o)return[false,'Keep #btn and #out.'];b.click();b.click();return o.textContent.trim()==='2'?[true,'Clicked twice, showed 2. You just wrote an event handler.']:[false,'After 2 clicks #out shows "'+o.textContent.trim()+'", expected 2.']}},
+
+j2:{title:"Say hello",learn:"<b>Reading input:</b> <code>input.value</code> is whatever was typed. Join text with <code>+</code> or a template string: <code>`Hi ${name}!`</code> (backticks, not quotes).",
+task:["When Greet is clicked, read the name from the input","Show <code>Hello, NAME!</code> in <code>#greeting</code>"],
+hint:"const name = input.value; greeting.textContent = 'Hello, ' + name + '!';",
+start:`<input id="name" placeholder="Your name">
+<button id="go">Greet</button>
+<h2 id="greeting"></h2>
+<script>
+const input = document.querySelector('#name');
+const go = document.querySelector('#go');
+const greeting = document.querySelector('#greeting');
+
+go.addEventListener('click', function () {
+  // your code here
+});
+<\/script>`,
+sol:`<input id="name" placeholder="Your name">
+<button id="go">Greet</button>
+<h2 id="greeting"></h2>
+<script>
+const input = document.querySelector('#name');
+const go = document.querySelector('#go');
+const greeting = document.querySelector('#greeting');
+
+go.addEventListener('click', function () {
+  const name = input.value;
+  greeting.textContent = 'Hello, ' + name + '!';
+});
+<\/script>`,
+check:d=>{const i=d.querySelector('#name'),g=d.querySelector('#go'),h=d.querySelector('#greeting');if(!i||!g||!h)return[false,'Keep #name, #go and #greeting.'];i.value='Ada';g.click();return h.textContent.includes('Ada')?[true,'It greeted "Ada". Reading input works.']:[false,'Typed "Ada" and clicked, but #greeting says "'+h.textContent+'".']}},
+
+j3:{title:"To-do list with an array",learn:"<b>Arrays</b> hold lists: <code>tasks.push('x')</code> adds one. To show them, build HTML with <code>tasks.map(t =&gt; '&lt;li&gt;' + t + '&lt;/li&gt;').join('')</code> and put it in <code>innerHTML</code>.",
+task:["When Add is clicked, push the input's text into <code>tasks</code>","Call <code>render()</code> so the list updates","Bonus: clear the input after adding"],
+hint:"tasks.push(input.value); render(); input.value = '';",
+start:`<input id="task" placeholder="New task">
+<button id="add">Add</button>
+<ul id="list"></ul>
+<script>
+const tasks = ['Pick an idea'];
+const input = document.querySelector('#task');
+const list = document.querySelector('#list');
+
+function render() {
+  list.innerHTML = tasks.map(t => '<li>' + t + '</li>').join('');
+}
+
+document.querySelector('#add').addEventListener('click', function () {
+  // your code here
+});
+
+render();
+<\/script>`,
+sol:`<input id="task" placeholder="New task">
+<button id="add">Add</button>
+<ul id="list"></ul>
+<script>
+const tasks = ['Pick an idea'];
+const input = document.querySelector('#task');
+const list = document.querySelector('#list');
+
+function render() {
+  list.innerHTML = tasks.map(t => '<li>' + t + '</li>').join('');
+}
+
+document.querySelector('#add').addEventListener('click', function () {
+  if (input.value.trim() === '') return; // ignore empty
+  tasks.push(input.value);
+  render();
+  input.value = '';
+});
+
+render();
+<\/script>`,
+check:d=>{const i=d.querySelector('#task'),a=d.querySelector('#add'),l=d.querySelector('#list');if(!i||!a||!l)return[false,'Keep #task, #add and #list.'];const n=l.querySelectorAll('li').length;i.value='Build demo';a.click();const m=l.querySelectorAll('li').length;return m===n+1&&l.textContent.includes('Build demo')?[true,'Added "Build demo". This push + render pattern shows up everywhere.']:[false,'Added a task, but the list went from '+n+' to '+m+' items.']}},
+
+j4:{title:"Get data like an API",learn:"<b>APIs</b> send data back after a short wait, so we use <code>async</code> / <code>await</code>. Real code would be <code>const res = await fetch(url); const data = await res.json();</code>. Here <code>getJoke()</code> pretends to be an API so it works offline.",
+task:["Make the click function <code>async</code>","Show <code>Loading…</code> first","<code>await getJoke()</code> and put the joke in <code>#joke</code>"],
+hint:"btn.addEventListener('click', async function () { out.textContent = 'Loading…'; const joke = await getJoke(); out.textContent = joke; });",
+start:`<button id="btn">Tell me a joke</button>
+<p id="joke"></p>
+<script>
+// Pretend API: waits half a second, then returns a joke
+function getJoke() {
+  const jokes = [
+    'Why do programmers prefer dark mode? Light attracts bugs.',
+    'There are 10 kinds of people: those who know binary and those who don\\'t.',
+    'I would tell a UDP joke, but you might not get it.'
+  ];
+  return new Promise(resolve =>
+    setTimeout(() => resolve(jokes[Math.floor(Math.random() * jokes.length)]), 500));
+}
+
+const btn = document.querySelector('#btn');
+const out = document.querySelector('#joke');
+
+btn.addEventListener('click', function () {
+  // your code here
+});
+<\/script>`,
+sol:`<button id="btn">Tell me a joke</button>
+<p id="joke"></p>
+<script>
+function getJoke() {
+  const jokes = [
+    'Why do programmers prefer dark mode? Light attracts bugs.',
+    'There are 10 kinds of people: those who know binary and those who don\\'t.',
+    'I would tell a UDP joke, but you might not get it.'
+  ];
+  return new Promise(resolve =>
+    setTimeout(() => resolve(jokes[Math.floor(Math.random() * jokes.length)]), 500));
+}
+
+const btn = document.querySelector('#btn');
+const out = document.querySelector('#joke');
+
+btn.addEventListener('click', async function () {
+  out.textContent = 'Loading…';
+  const joke = await getJoke();
+  out.textContent = joke;
+});
+<\/script>`,
+check:d=>new Promise(res=>{const b=d.querySelector('#btn'),o=d.querySelector('#joke');if(!b||!o)return res([false,'Keep #btn and #joke.']);b.click();const first=o.textContent;setTimeout(()=>{const t=o.textContent;if(t.length>20&&!t.includes('Loading'))res([true,first.includes('Loading')?'Loading, then a joke. That is exactly how API calls feel.':'Joke arrived. Add a Loading… message first for full marks.']);else res([false,'After waiting, #joke says "'+t+'".'])},900)})},
+
+p1:{title:"Quiz app",learn:"<b>Uses everything:</b> an array of question objects, a function that draws the current question, click handlers on answer buttons, and a score.",
+task:["Run it and play the starter quiz","Add 2 more questions to <code>questions</code>","Make the right answer flash green and a wrong one red","Bonus: add a Restart button, or a timer"],
+hint:"Each question is an object: { q: 'text', options: ['a','b','c'], answer: 1 }. answer is the position of the right option, counting from 0.",
+start:`<style>
+body { font-family: sans-serif; padding: 10px; }
+.opt { display: block; margin: 6px 0; padding: 10px; width: 100%;
+       border-radius: 8px; border: 1px solid #ccc; background: #f4f8fb; font-size: 15px; }
+</style>
+<h2 id="q"></h2>
+<div id="opts"></div>
+<p id="score"></p>
+<script>
+const questions = [
+  { q: 'Which tag makes a big heading?', options: ['<p>', '<h1>', '<ul>'], answer: 1 },
+  { q: 'Which CSS puts things in a row?', options: ['display: flex', 'color: red', 'padding: 0'], answer: 0 },
+];
+let i = 0, score = 0;
+
+function show() {
+  if (i >= questions.length) {
+    document.querySelector('#q').textContent = 'Done!';
+    document.querySelector('#opts').innerHTML = '';
+    document.querySelector('#score').textContent = 'Score: ' + score + ' / ' + questions.length;
+    return;
+  }
+  const cur = questions[i];
+  document.querySelector('#q').textContent = cur.q;
+  const opts = document.querySelector('#opts');
+  opts.innerHTML = '';
+  cur.options.forEach(function (text, n) {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = text;
+    b.addEventListener('click', function () {
+      if (n === cur.answer) score++;
+      i++;
+      show();
+    });
+    opts.appendChild(b);
+  });
+}
+show();
+<\/script>`,
+sol:`<style>
+body { font-family: sans-serif; padding: 10px; }
+.opt { display: block; margin: 6px 0; padding: 10px; width: 100%;
+       border-radius: 8px; border: 1px solid #ccc; background: #f4f8fb; font-size: 15px; }
+.right { background: #b8f0cf; } .wrong { background: #ffc2d1; }
+</style>
+<h2 id="q"></h2>
+<div id="opts"></div>
+<p id="score"></p>
+<button id="restart" style="display:none">Restart</button>
+<script>
+const questions = [
+  { q: 'Which tag makes a big heading?', options: ['<p>', '<h1>', '<ul>'], answer: 1 },
+  { q: 'Which CSS puts things in a row?', options: ['display: flex', 'color: red', 'padding: 0'], answer: 0 },
+  { q: 'What does .push() do to an array?', options: ['Removes the first item', 'Adds an item at the end', 'Sorts it'], answer: 1 },
+  { q: 'Which keyword waits for an API?', options: ['await', 'wait', 'pause'], answer: 0 },
+];
+let i = 0, score = 0;
+const restart = document.querySelector('#restart');
+
+function show() {
+  if (i >= questions.length) {
+    document.querySelector('#q').textContent = 'Done!';
+    document.querySelector('#opts').innerHTML = '';
+    document.querySelector('#score').textContent = 'Score: ' + score + ' / ' + questions.length;
+    restart.style.display = 'inline-block';
+    return;
+  }
+  const cur = questions[i];
+  document.querySelector('#q').textContent = cur.q;
+  const opts = document.querySelector('#opts');
+  opts.innerHTML = '';
+  cur.options.forEach(function (text, n) {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.textContent = text;
+    b.addEventListener('click', function () {
+      const ok = n === cur.answer;
+      if (ok) score++;
+      b.classList.add(ok ? 'right' : 'wrong');
+      setTimeout(function () { i++; show(); }, 600);
+    });
+    opts.appendChild(b);
+  });
+}
+restart.addEventListener('click', function () {
+  i = 0; score = 0; restart.style.display = 'none'; show();
+});
+show();
+<\/script>`,
+check:null}
+};
+
+const ORDER=['h1','h2','c1','c2','j1','j2','j3','j4'];
+let done={},saved={};
+try{done=JSON.parse(localStorage.getItem('htr-done')||'{}');saved=JSON.parse(localStorage.getItem('htr-code')||'{}')}catch(e){}
+const store=()=>{try{localStorage.setItem('htr-done',JSON.stringify(done));localStorage.setItem('htr-code',JSON.stringify(saved))}catch(e){}};
+const esc=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const updateProg=()=>{const n=ORDER.filter(k=>done[k]).length;document.getElementById('barfill').style.width=(n/ORDER.length*100)+'%';document.getElementById('count').textContent=n+' of '+ORDER.length+' checked'};
+
+document.querySelectorAll('[data-ex]').forEach(slot=>{
+  const id=slot.dataset.ex,ex=EX[id],num=id==='p1'?'':(ORDER.indexOf(id)+1)+'. ';
+  slot.className='bench';
+  slot.innerHTML=`<div class="brief"><h3>${num}${ex.title}<span class="done" id="d-${id}">${done[id]?'✓ done':''}</span></h3>
+    <div class="learn">${ex.learn}</div><ol>${ex.task.map(t=>'<li>'+t+'</li>').join('')}</ol>
+    <details><summary>Hint</summary><p>${esc(ex.hint)}</p></details>
+    <details><summary>Show an answer</summary><pre>${esc(ex.sol)}</pre></details></div>
+    <div class="work"><div class="edhead"><span>index.html</span><div class="btns">
+      <button class="run" id="r-${id}">Run</button>${ex.check?`<button id="k-${id}">Check</button>`:''}<button id="x-${id}">Reset</button></div></div>
+      <textarea id="t-${id}" spellcheck="false" aria-label="Code for ${ex.title}"></textarea>
+      <div class="screen"><div class="chrome"><i></i><i></i><i></i></div><iframe id="f-${id}" title="Preview of ${ex.title}"></iframe></div>
+      <div class="msg" id="m-${id}" role="status"></div></div>`;
+  const ta=document.getElementById('t-'+id),fr=document.getElementById('f-'+id),msg=document.getElementById('m-'+id);
+  ta.value=saved[id]||ex.start;
+  if(id==='p1')fr.style.height='320px';
+  const run=()=>new Promise(res=>{fr.onload=()=>res();fr.srcdoc=ta.value;saved[id]=ta.value;store()});
+  ta.addEventListener('keydown',e=>{if(e.key==='Tab'&&!e.shiftKey){e.preventDefault();const s=ta.selectionStart;ta.setRangeText('  ',s,ta.selectionEnd,'end')}});
+  ta.addEventListener('input',()=>{saved[id]=ta.value;store()});
+  document.getElementById('r-'+id).addEventListener('click',()=>{msg.textContent='';msg.className='msg';run()});
+  document.getElementById('x-'+id).addEventListener('click',()=>{ta.value=ex.start;delete saved[id];store();msg.textContent='';run()});
+  if(ex.check)document.getElementById('k-'+id).addEventListener('click',async()=>{
+    msg.className='msg';msg.textContent='Checking…';await run();
+    let r;try{r=await ex.check(fr.contentDocument,fr.contentWindow)}catch(e){r=[false,'Could not check: '+e.message]}
+    if(r[0]){done[id]=true;document.getElementById('d-'+id).textContent='✓ done'}
+    msg.className='msg '+(r[0]?'good':'bad');msg.textContent=(r[0]?'✓ ':'✗ ')+r[1];store();updateProg();
+    if(r[0])run();
+  });
+  run();
+});
+updateProg();
+}
+</script>
+</body>
+</html>
